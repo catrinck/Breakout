@@ -11,13 +11,13 @@ screen_height = 600
 font = pygame.font.SysFont('Constantia', 36)
 
 #define colors
-background = (0, 0, 0)
-block_red = (255, 0, 0)
-block_green = (0, 255, 0)
-block_orange = (255 * 65536 + 165 * 256 + 0)
-block_yellow = (255, 255, 0)
-paddle_color = (142, 135, 123)
-text_color = (78, 81, 139)
+BG = (0, 0, 0)
+BLOCK_RED = (255, 0, 0)
+BLOCK_GREEN = (0, 255, 0)
+BLOCK_ORANGE = (255 * 65536 + 165 * 256 + 0)
+BLOCK_YELLOW = (255, 255, 0)
+PADDLE_COLOR = (142, 135, 123)
+TEXT_COLOR = (78, 81, 139)
 
 # creating screen
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -36,6 +36,10 @@ class BALL:
     ball_color = (255, 255, 255)
     ball_size = 30
     ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, ball_size, ball_size)
+
+    #def collision (ball) :
+
+
 
 # criar funcao de colisao da bola
 # criar funcao de movimentaçao
@@ -81,15 +85,15 @@ class BLOCK:
             for block in row:
                 # assign a colour based on block strength
                 if block[1] == 4:
-                    block_col = block_yellow
+                    block_col = BLOCK_YELLOW
                 elif block[1] == 3:
-                    block_col = block_green
+                    block_col = BLOCK_GREEN
                 elif block[1] == 2:
-                    block_col = block_orange
+                    block_col = BLOCK_ORANGE
                 elif block[1] == 1:
-                    block_col = block_red
+                    block_col = BLOCK_RED
                 pygame.draw.rect(screen, block_col, block[0])
-                pygame.draw.rect(screen, background, (block[0]), 2)
+                pygame.draw.rect(screen, BG, (block[0]), 2)
 
 
 
