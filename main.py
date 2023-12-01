@@ -32,8 +32,8 @@ clock = pygame.time.Clock()
 FPS = 60
 cols = 12
 rows = 8
-pallet_size = 180
-pallet_width = 10
+pallet_size = 10
+pallet_width = 100
 paddle_outline = (100, 100, 100)
 
 
