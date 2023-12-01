@@ -1,5 +1,8 @@
 import pygame
-import random
+from pygame.cursors import *
+from pygame.locals import Rect
+
+#import random
 
 pygame.init()
 
@@ -16,8 +19,9 @@ BLOCK_RED = (255, 0, 0)
 BLOCK_GREEN = (0, 255, 0)
 BLOCK_ORANGE = (255 * 65536 + 165 * 256 + 0)
 BLOCK_YELLOW = (255, 255, 0)
-PADDLE_COLOR = (142, 135, 123)
 TEXT_COLOR = (78, 81, 139)
+PADDLE_COLOR = (142, 135, 123)
+block_col = None
 
 # creating screen
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -25,33 +29,152 @@ pygame.display.set_caption('Breakout')
 
 #variables
 clock = pygame.time.Clock()
-running = True
-live_ball = True
+FPS = 60
 cols = 12
 rows = 8
+pallet_size = 180
+pallet_width = 10
+paddle_outline = (100, 100, 100)
 
 
+class PADDLE:
+    direction = None
+   # player_draw = pygame.Rect(screen_width - 20, screen_height / 2, PADDLE_COLOR, pallet_width, pallet_size)
+    VELOCIDADE = 8
+
+    def __init__(self, x, y, width, height):
+        #self.rect = Rect(self.x, self.y, self.width, self.height)
+        self.x = self.original_x = x
+        self.y = self.original_y = y
+        self.width = width
+        self.height = height
+        self.rect = Rect(self.x, self.y, self.width, self.height)
+
+    def move (self, up = True):
+        if up :
+            self.y -= self.VELOCIDADE
+        else :
+            self.y += self.VELOCIDADE
+        self.rect.y = self.y
+
+    def reset(self):
+        self.height = 20
+        self.width = int(screen_width / cols)
+        self.x = self.original_x
+        self.y = self.original_y
+        #self.speed = 10
+        #self.direction = 0
+
+
+    def draw(self):
+        pygame.draw.rect(screen, PADDLE_COLOR, self.rect)
+        pygame.draw.rect(screen, paddle_outline, self.rect, 3)
+
+
+radius = 10
 class BALL:
     max_speed = 10 # to decide
     ball_color = (255, 255, 255)
-    ball_size = 30
-    ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, ball_size, ball_size)
+    #ball_size = 30
+    #ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, ball_size, ball_size)
 
-    #def collision (ball) :
-        
+    def __init__(self, x, y, radius):
+        self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
+        self.speed_y = None
+        self.x = self.original_x = x
+        self.y = self.original_y = y
+        self.radius = radius
+        self.speed_x = self.max_speed
 
+    def move(self):
 
+        # collision
+        collision_thresh = 5
 
-# criar funcao de colisao da bola
-# criar funcao de movimentaçao
+        # the wall has to be completely destroyed 
+        wall_destroyed = 1
+        row_count = 0
+        for row in wall.blocks:
+            item_count = 0
+            for item in row:
+                # check collision
+                if self.rect.colliderect(item[0]):
+                    # check if collision was from above
+                    if abs(self.rect.bottom - item[0].top) < collision_thresh and self.speed_y > 0:
+                        self.speed_y *= -1
+                    # check if collision was from below
+                    if abs(self.rect.top - item[0].bottom) < collision_thresh and self.speed_y < 0:
+                        self.speed_y *= -1
+                    # check if collision was from left
+                    if abs(self.rect.right - item[0].left) < collision_thresh and self.speed_x > 0:
+                        self.speed_x *= -1
+                    # check if collision was from right
+                    if abs(self.rect.left - item[0].right) < collision_thresh and self.speed_x < 0:
+                        self.speed_x *= -1
+                    # reduce the block's strength by doing damage to it
+                    if wall.blocks[row_count][item_count][1] > 1:
+                        wall.blocks[row_count][item_count][1] -= 1
+                    else:
+                        wall.blocks[row_count][item_count][0] = (0, 0, 0, 0)
+
+                # check if block still exists, in whcih case the wall is not destroyed
+                if wall.blocks[row_count][item_count][0] != (0, 0, 0, 0):
+                    wall_destroyed = 0
+                # increase item counter
+                item_count += 1
+            # increase row counter
+            row_count += 1
+        # after iterating through all the blocks, check if the wall is destroyed
+        if wall_destroyed == 1:
+            self.game_over = 1
+
+        # check for collision with walls
+        if self.rect.left < 0 or self.rect.right > screen_width:
+            self.speed_x *= -1
+
+        # check for collision with top and bottom of the screen
+        if self.rect.top < 0:
+            self.speed_y *= -1
+        if self.rect.bottom > screen_height:
+            self.game_over = -1
+
+        # look for collission with paddle
+        if self.rect.colliderect(player):
+            # check if colliding from the top
+            if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
+                self.speed_y *= -1
+                self.speed_x += player.direction
+                if self.speed_x > self.max_speed:
+                    self.speed_x = self.max_speed
+                elif self.speed_x < 0 and self.speed_x < -self.max_speed:
+                    self.speed_x = -self.max_speed
+            else:
+                self.speed_x *= -1
+
+    def reset(self):
+        self.x = self.original_x
+        self.y = self.original_y
+        self.speed_y = 0
+        self.speed_x *= -1
+
+    def draw(self):
+        pygame.draw.circle(screen, PADDLE_COLOR, (self.rect.x + self.radius, self.rect.y + self.radius),
+                           self.radius)
+        pygame.draw.circle(screen, paddle_outline, (self.rect.x + self.radius, self.rect.y + self.radius),
+                           self.radius, 3)
+
 # criar funcao pra randomizar a bola
 
-# block criar classe para blocos
+# block cria classe para blocos
 class BLOCK:
     def __init__(self):
+        self.game_over = 0
+        self.live_ball = False
+        self.blocks = None
         self.width = screen_width // cols
         self.height = 30
 
+#create the wall of blocks
     def create_wall(self):
         self.blocks = []
         # lista vazia para blocos individuais
@@ -100,13 +223,59 @@ class BLOCK:
 
 # function for outputting text onto the screen
 def draw_text(text, font, text_color, x, y):
-	img = font.render(text, True, text_color)
-	screen.blit(img, (x, y))
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x, y))
 
+wall = BLOCK()
+wall.create_wall()
+player = PADDLE(screen_width - 20, screen_height / 2, pallet_width, pallet_size)
+ball = BALL(screen_width / 2, screen_height / 2, radius)
+game_over = 0
+live_ball = False
+run = True
 
+#game loop
+while run:
 
+    clock.tick(FPS)
+    screen.fill(BG)
 
+    #DRAW THINGS
 
+    wall.draw_wall()
+    player.draw()
+    ball.draw()
 
+    if live_ball:
+        # draw paddle
+        player.move()
+        # draw ball
+        game_over = ball.move()
+        if game_over != 0:
+            live_ball = False
 
+        # print player instructions
+        if not live_ball:
+            ball.reset()
+            player.reset()
+            if game_over == 0:
+                draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+            elif game_over == 1:
+                draw_text('YOU WON!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
+                draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+            elif game_over == -1:
+                draw_text('YOU LOST!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
+                draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN and live_ball == False:
+                live_ball = True
+                ball.reset(player.x + (player.screen_width // 2), player.y - player.height)
+                player.reset()
+                wall.create_wall()
+
+        pygame.display.update()
+
+pygame.quit()
