@@ -38,6 +38,7 @@ class BALL:
     ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, ball_size, ball_size)
 
     #def collision (ball) :
+        
 
 
 
