@@ -39,15 +39,18 @@ paddle_outline = (100, 100, 100)
 
 class PADDLE:
     direction = None
-   # player_draw = pygame.Rect(screen_width - 20, screen_height / 2, PADDLE_COLOR, pallet_width, pallet_size)
-    VELOCIDADE = 8
+    # player_draw = pygame.Rect(screen_width - 20, screen_height / 2, PADDLE_COLOR, pallet_width, pallet_size)
 
-    def __init__(self, x, y, width, height):
-        #self.rect = Rect(self.x, self.y, self.width, self.height)
-        self.x = self.original_x = x
-        self.y = self.original_y = y
+    def __init__(self, x, y, width, height, VELOCIDADE = 8):
+        self.VELOCIDADE = 8
         self.width = width
         self.height = height
+        self.speed = VELOCIDADE
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.x = (screen_width - self.width) // 2
+        self.y = screen_height - self.height - 10
+        self.direction = 0
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
     def move (self, up = True):
@@ -58,12 +61,11 @@ class PADDLE:
         self.rect.y = self.y
 
     def reset(self):
-        self.height = 20
-        self.width = int(screen_width / cols)
-        self.x = self.original_x
-        self.y = self.original_y
-        #self.speed = 10
-        #self.direction = 0
+        self.x = screen_width // 2 - self.width // 2
+        #  self.height = 20
+     #   self.width = int(screen_width / cols)
+        #self.x = screen_width //2 - self.width // 2
+        #self.y = self.original_y
 
 
     def draw(self):
@@ -91,7 +93,7 @@ class BALL:
         # collision
         collision_thresh = 5
 
-        # the wall has to be completely destroyed 
+        # the wall has to be completely destroyed
         wall_destroyed = 1
         row_count = 0
         for row in wall.blocks:
@@ -228,7 +230,7 @@ def draw_text(text, font, text_color, x, y):
 
 wall = BLOCK()
 wall.create_wall()
-player = PADDLE(screen_width - 20, screen_height / 2, pallet_width, pallet_size)
+player = PADDLE(screen_width - 20, screen_height / 2, pallet_width, pallet_size, VELOCIDADE= 8)
 ball = BALL(screen_width / 2, screen_height / 2, radius)
 game_over = 0
 live_ball = False
@@ -277,5 +279,7 @@ while run:
                 wall.create_wall()
 
         pygame.display.update()
+
+    pygame.display.flip()
 
 pygame.quit()
