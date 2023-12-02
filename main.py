@@ -290,13 +290,13 @@ while run:
             ball.reset()
             player.reset()
             if game_over == 0:
-                draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+                draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
             elif game_over == 1:
                 draw_text('YOU WON!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
-                draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+                draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
             elif game_over == -1:
                 draw_text('YOU LOST!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
-                draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+                draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
 
     pygame.display.update()
 pygame.display.flip()
