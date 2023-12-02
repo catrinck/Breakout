@@ -54,12 +54,16 @@ class PADDLE:
         self.direction = 0
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
-    def move (self, up = True):
-        if up :
-            self.y -= self.VELOCIDADE
-        else :
-            self.y += self.VELOCIDADE
-        self.rect.y = self.y
+    def move (self):
+        self.direction = 0
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.x -= self.VELOCIDADE
+            self.direction = -1
+        if keys[pygame.K_RIGHT] and self.rect.right < screen_width:
+            self.x += self.VELOCIDADE
+            self.direction = 1
+        self.rect.x = self.x
 
     def reset(self):
         self.x = screen_width // 2 - self.width // 2
@@ -88,8 +92,12 @@ class BALL:
         self.y = self.original_y = y
         self.radius = radius
         self.speed_x = self.max_speed
+        self.game_over = 0
 
     def move(self):
+        if not self.game_over:
+            if self.speed_x == 0 and self.speed_y == 0:
+                self.speed_y = self.max_speed
 
         # collision
         collision_thresh = 5
@@ -101,26 +109,25 @@ class BALL:
             item_count = 0
             for item in row:
                 # check collision
-                if self.rect.colliderect(item[0]):
-                    # check if collision was from above
-                    if abs(self.rect.bottom - item[0].top) < collision_thresh and self.speed_y > 0:
-                        self.speed_y *= -1
-                    # check if collision was from below
-                    if abs(self.rect.top - item[0].bottom) < collision_thresh and self.speed_y < 0:
-                        self.speed_y *= -1
-                    # check if collision was from left
-                    if abs(self.rect.right - item[0].left) < collision_thresh and self.speed_x > 0:
-                        self.speed_x *= -1
-                    # check if collision was from right
-                    if abs(self.rect.left - item[0].right) < collision_thresh and self.speed_x < 0:
-                        self.speed_x *= -1
+                # get the center of the circle
+                circle_center = (self.x + self.radius, self.y + self.radius)
+                # find the closest point on the rectangle to the center of the circle
+                closest_x = max(item[0].left, min(circle_center[0], item[0].right))
+                closest_y = max(item[0].top, min(circle_center[1], item[0].bottom))
+                # calculate the distance between the center of the circle and this closest point
+                distance = ((circle_center[0] - closest_x) ** 2 + (circle_center[1] - closest_y) ** 2) ** 0.5
+                # check if the distance is less than the radius of the circle
+                if distance < self.radius + collision_thresh:
+                    # handle collision
+                    self.speed_x *= -1
+                    self.speed_y *= -1
                     # reduce the block's strength by doing damage to it
                     if wall.blocks[row_count][item_count][1] > 1:
                         wall.blocks[row_count][item_count][1] -= 1
                     else:
                         wall.blocks[row_count][item_count][0] = (0, 0, 0, 0)
 
-                # check if block still exists, in whcih case the wall is not destroyed
+                # check if block still exists, in which case the wall is not destroyed
                 if wall.blocks[row_count][item_count][0] != (0, 0, 0, 0):
                     wall_destroyed = 0
                 # increase item counter
@@ -136,13 +143,11 @@ class BALL:
             self.speed_x *= -1
 
         # check for collision with top and bottom of the screen
-        if self.rect.top < 0:
+        if self.rect.top < 0 or self.rect.bottom > screen_height:
             self.speed_y *= -1
-        if self.rect.bottom > screen_height:
-            self.game_over = -1
 
-        # look for collission with paddle
-        if self.rect.colliderect(player):
+        # look for collision with paddle
+        if self.rect.colliderect(player.rect):
             # check if colliding from the top
             if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
                 self.speed_y *= -1
@@ -154,11 +159,21 @@ class BALL:
             else:
                 self.speed_x *= -1
 
+        # update ball position
+        self.x += self.speed_x
+        self.y += self.speed_y
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        return self.game_over
+
+
+
     def reset(self):
         self.x = self.original_x
         self.y = self.original_y
         self.speed_y = 0
-        self.speed_x *= -1
+        self.speed_x = -self.speed_x
 
     def draw(self):
         pygame.draw.circle(screen, PADDLE_COLOR, (self.rect.x + self.radius, self.rect.y + self.radius),
@@ -253,22 +268,25 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN and not live_ball:
-            live_ball = True
-            ball.reset(player.x + (player.screen_width // 2), player.y - player.height)
-            player.reset()
-            wall.create_wall()
+    if event.type == pygame.MOUSEBUTTONDOWN :
+        live_ball = True
+        ball.reset()
+        player.reset()
+        wall.create_wall()
 
     if live_ball:
         # draw paddle
         player.move()
+        player.draw()
         # draw ball
         game_over = ball.move()
-        if game_over != 0:
-            live_ball = False
+        ball.draw()
+        #if game_over != 0:
+            #live_ball = False
 
         # print player instructions
-        if not live_ball:
+    if not live_ball:
+            player.move()
             ball.reset()
             player.reset()
             if game_over == 0:
@@ -280,6 +298,6 @@ while run:
                 draw_text('YOU LOST!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
                 draw_text('CLICK ANYWHERE TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
 
-        pygame.display.update()
-    pygame.display.flip()
+    pygame.display.update()
+pygame.display.flip()
 pygame.quit()
