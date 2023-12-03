@@ -2,8 +2,7 @@ import pygame
 from pygame.cursors import *
 from pygame.locals import Rect
 import sys
-
-#import random
+import math
 
 pygame.init()
 
@@ -42,8 +41,8 @@ class PADDLE:
     direction = None
     # player_draw = pygame.Rect(screen_width - 20, screen_height / 2, PADDLE_COLOR, pallet_width, pallet_size)
 
-    def __init__(self, x, y, width, height, VELOCIDADE = 8):
-        self.VELOCIDADE = 8
+    def __init__(self, x, y, width, height, VELOCIDADE = 10):
+        self.VELOCIDADE = 10
         self.width = width
         self.height = height
         self.speed = VELOCIDADE
@@ -80,91 +79,59 @@ class PADDLE:
 
 radius = 10
 class BALL:
-    max_speed = 10 # to decide
+    max_speed = 7 # to decide
     ball_color = (255, 255, 255)
     #ball_size = 30
     #ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, ball_size, ball_size)
 
     def __init__(self, x, y, radius):
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
-        self.speed_y = None
         self.x = self.original_x = x
         self.y = self.original_y = y
         self.radius = radius
         self.speed_x = self.max_speed
+        self.speed_y = - self.max_speed
         self.game_over = 0
 
     def move(self):
-        if not self.game_over:
-            if self.speed_x == 0 and self.speed_y == 0:
-                self.speed_y = self.max_speed
-
-        # collision
-        collision_thresh = 5
-
-        # the wall has to be completely destroyed
-        wall_destroyed = 1
-        row_count = 0
-        for row in wall.blocks:
-            item_count = 0
-            for item in row:
-                # check collision
-                # get the center of the circle
-                circle_center = (self.x + self.radius, self.y + self.radius)
-                # find the closest point on the rectangle to the center of the circle
-                closest_x = max(item[0].left, min(circle_center[0], item[0].right))
-                closest_y = max(item[0].top, min(circle_center[1], item[0].bottom))
-                # calculate the distance between the center of the circle and this closest point
-                distance = ((circle_center[0] - closest_x) ** 2 + (circle_center[1] - closest_y) ** 2) ** 0.5
-                # check if the distance is less than the radius of the circle
-                if distance < self.radius + collision_thresh:
-                    # handle collision
-                    self.speed_x *= -1
-                    self.speed_y *= -1
-                    # reduce the block's strength by doing damage to it
-                    if wall.blocks[row_count][item_count][1] > 1:
-                        wall.blocks[row_count][item_count][1] -= 1
-                    else:
-                        wall.blocks[row_count][item_count][0] = (0, 0, 0, 0)
-
-                # check if block still exists, in which case the wall is not destroyed
-                if wall.blocks[row_count][item_count][0] != (0, 0, 0, 0):
-                    wall_destroyed = 0
-                # increase item counter
-                item_count += 1
-            # increase row counter
-            row_count += 1
-        # after iterating through all the blocks, check if the wall is destroyed
-        if wall_destroyed == 1:
-            self.game_over = 1
-
-        # check for collision with walls
-        if self.rect.left < 0 or self.rect.right > screen_width:
-            self.speed_x *= -1
-
-        # check for collision with top and bottom of the screen
-        if self.rect.top < 0 or self.rect.bottom > screen_height:
-            self.speed_y *= -1
-
-        # look for collision with paddle
-        if self.rect.colliderect(player.rect):
-            # check if colliding from the top
-            if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
-                self.speed_y *= -1
-                self.speed_x += player.direction
-                if self.speed_x > self.max_speed:
-                    self.speed_x = self.max_speed
-                elif self.speed_x < 0 and self.speed_x < -self.max_speed:
-                    self.speed_x = -self.max_speed
-            else:
-                self.speed_x *= -1
-
-        # update ball position
+        # Update ball position based on speed
         self.x += self.speed_x
         self.y += self.speed_y
         self.rect.x = self.x
         self.rect.y = self.y
 
+        # check collision with paddle
+        if self.rect.colliderect(player.rect):
+            paddle_hit_position = (self.rect.centerx - player.rect.left) / player.rect.width
+            reflection_angle = (paddle_hit_position - 0.5) * 2 * (math.pi / 4)  # Use math.pi instead of 3.14
+            self.speed_x = self.max_speed * -math.cos(reflection_angle)
+            self.speed_y = -self.max_speed * math.sin(reflection_angle)
+
+        # Check collision with blocks
+        for row in range(rows):
+            for col in range(cols):
+                block = wall.blocks[row][col][0]
+                if block.colliderect(self.rect):
+                    # Collision with a block
+                    # Do whatever is necessary upon colliding with a block
+                    wall.blocks[row][col][1] -= 1  # Reduce the strength of the block, or use other logic
+                    if wall.blocks[row][col][1] == 0:
+                        wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
+
+                    # Update ball velocities (example: invert)
+                    self.speed_x *= -1
+                    self.speed_y *= -1
+
+        # Check collision with walls and update velocities
+        if self.rect.left < 0 or self.rect.right > screen_width:
+            self.speed_x *= -1
+
+        # Check collision with top and bottom of the screen and update velocities
+        if self.rect.top < 0 or self.rect.bottom > screen_height:
+            self.speed_y *= -1
+
+
+        # Return the game over state
         return self.game_over
 
 
@@ -172,8 +139,8 @@ class BALL:
     def reset(self):
         self.x = self.original_x
         self.y = self.original_y
-        self.speed_y = 0
-        self.speed_x = -self.speed_x
+        self.speed_y = -self.max_speed
+        self.speed_x = self.speed_x
 
     def draw(self):
         pygame.draw.circle(screen, PADDLE_COLOR, (self.rect.x + self.radius, self.rect.y + self.radius),
@@ -190,7 +157,7 @@ class BLOCK:
         self.live_ball = False
         self.blocks = None
         self.width = screen_width // cols
-        self.height = 30
+        self.height = 20
 
 #create the wall of blocks
     def create_wall(self):
