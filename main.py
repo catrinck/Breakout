@@ -3,12 +3,13 @@ from pygame.cursors import *
 from pygame.locals import Rect
 import sys
 import math
+import random
 
 pygame.init()
 
 #screen
-screen_width = 800
-screen_height = 600
+screen_width = 600
+screen_height = 700
 
 #define font
 font = pygame.font.SysFont('Constantia', 36)
@@ -32,13 +33,12 @@ clock = pygame.time.Clock()
 FPS = 60
 cols = 12
 rows = 8
-pallet_size = 20
+pallet_size = 15
 pallet_width = 100
 paddle_outline = (100, 100, 100)
 
 # sound effects
 bounce_sound_effect = pygame.mixer.Sound('assets/bounce.wav')
-
 
 class PADDLE:
     direction = None
@@ -99,13 +99,21 @@ class BALL:
 
         # check collision with paddle
         if self.rect.colliderect(player):
+            if self.speed_y > 0:  # Apenas se a bola estiver se movendo para baixo
+                self.speed_y *= -1
             if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
                 self.speed_y *= -1
                 self.speed_x *= player.direction
-                bounce_sound_effect.play()
-            # reflection_angle = (paddle_hit_position - 0.5) * 2 * (math.pi / 4)  # Use math.pi instead of 3.14
-            # self.speed_x = self.max_speed * -math.cos(reflection_angle)
-            # self.speed_y = -self.max_speed * math.sin(reflection_angle)
+                relative_collision_point = (self.rect.centerx - player.rect.x) / player.rect.width
+                reflection_angle = (relative_collision_point - 0.5) * 2 * (math.pi / 4)
+
+                # Add randomness to the reflection angle:
+                random_factor = random.uniform(-math.pi / 8, math.pi / 8)
+                reflection_angle += random_factor
+
+                # Update ball velocities based on reflection angle
+                self.speed_x = self.max_speed * -math.cos(reflection_angle)
+                self.speed_y = -self.max_speed * math.sin(reflection_angle)
 
         # Check collision with blocks
         for row in range(rows):
@@ -138,12 +146,11 @@ class BALL:
         return self.game_over
 
 
-
     def reset(self):
         self.x = self.original_x
         self.y = self.original_y
         self.speed_y = -self.max_speed
-        self.speed_x = self.speed_x
+        self.speed_x = random.choice([6, -6])
 
     def draw(self):
         pygame.draw.circle(screen, PADDLE_COLOR, (self.rect.x + self.radius, self.rect.y + self.radius),
@@ -151,9 +158,6 @@ class BALL:
         pygame.draw.circle(screen, paddle_outline, (self.rect.x + self.radius, self.rect.y + self.radius),
                            self.radius, 3)
 
-# criar funcao pra randomizar a bola
-
-# block cria classe para blocos
 class BLOCK:
     def __init__(self):
         self.game_over = 0
@@ -165,7 +169,7 @@ class BLOCK:
 #create the wall of blocks
     def create_wall(self):
         self.blocks = []
-        # lista vazia para blocos individuais
+        # empty list fot individual blocks
         block_individual = []
         for row in range(rows):
             # reset the block row list
