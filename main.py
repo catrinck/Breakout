@@ -32,7 +32,7 @@ clock = pygame.time.Clock()
 FPS = 60
 cols = 12
 rows = 8
-pallet_size = 10
+pallet_size = 20
 pallet_width = 100
 paddle_outline = (100, 100, 100)
 
@@ -92,12 +92,16 @@ class BALL:
         self.rect.x = self.x
         self.rect.y = self.y
 
+        collision_thresh = 5
+
         # check collision with paddle
-        if self.rect.colliderect(player.rect):
-            paddle_hit_position = (self.rect.centerx - player.rect.left) / player.rect.width
-            reflection_angle = (paddle_hit_position - 0.5) * 2 * (math.pi / 4)  # Use math.pi instead of 3.14
-            self.speed_x = self.max_speed * -math.cos(reflection_angle)
-            self.speed_y = -self.max_speed * math.sin(reflection_angle)
+        if self.rect.colliderect(player):
+            if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
+                self.speed_y *= -1
+                self.speed_x *= player.direction
+            # reflection_angle = (paddle_hit_position - 0.5) * 2 * (math.pi / 4)  # Use math.pi instead of 3.14
+            # self.speed_x = self.max_speed * -math.cos(reflection_angle)
+            # self.speed_y = -self.max_speed * math.sin(reflection_angle)
 
         # Check collision with blocks
         for row in range(rows):
