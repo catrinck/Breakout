@@ -136,8 +136,8 @@ class BALL:
             self.speed_x *= -1
             bounce_sound_effect.play()
 
-        # Check collision with top and bottom of the screen and update velocities
-        if self.rect.top < 0 or self.rect.bottom > screen_height:
+        # Check collision with top
+        if self.rect.top < 0 :
             self.speed_y *= -1
             bounce_sound_effect.play()
 
