@@ -36,6 +36,9 @@ pallet_size = 20
 pallet_width = 100
 paddle_outline = (100, 100, 100)
 
+# sound effects
+bounce_sound_effect = pygame.mixer.Sound('assets/bounce.wav')
+
 
 class PADDLE:
     direction = None
@@ -99,6 +102,7 @@ class BALL:
             if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
                 self.speed_y *= -1
                 self.speed_x *= player.direction
+                bounce_sound_effect.play()
             # reflection_angle = (paddle_hit_position - 0.5) * 2 * (math.pi / 4)  # Use math.pi instead of 3.14
             # self.speed_x = self.max_speed * -math.cos(reflection_angle)
             # self.speed_y = -self.max_speed * math.sin(reflection_angle)
@@ -117,14 +121,17 @@ class BALL:
                     # Update ball velocities (example: invert)
                     self.speed_x *= -1
                     self.speed_y *= -1
+                    bounce_sound_effect.play()
 
         # Check collision with walls and update velocities
         if self.rect.left < 0 or self.rect.right > screen_width:
             self.speed_x *= -1
+            bounce_sound_effect.play()
 
         # Check collision with top and bottom of the screen and update velocities
         if self.rect.top < 0 or self.rect.bottom > screen_height:
             self.speed_y *= -1
+            bounce_sound_effect.play()
 
 
         # Return the game over state
