@@ -39,7 +39,6 @@ paddle_outline = (100, 100, 100)
 
 class PADDLE:
     direction = None
-    # player_draw = pygame.Rect(screen_width - 20, screen_height / 2, PADDLE_COLOR, pallet_width, pallet_size)
 
     def __init__(self, x, y, width, height, VELOCIDADE = 10):
         self.VELOCIDADE = 10
@@ -66,11 +65,6 @@ class PADDLE:
 
     def reset(self):
         self.x = screen_width // 2 - self.width // 2
-        #  self.height = 20
-     #   self.width = int(screen_width / cols)
-        #self.x = screen_width //2 - self.width // 2
-        #self.y = self.original_y
-
 
     def draw(self):
         pygame.draw.rect(screen, PADDLE_COLOR, self.rect)
@@ -81,8 +75,6 @@ radius = 10
 class BALL:
     max_speed = 7 # to decide
     ball_color = (255, 255, 255)
-    #ball_size = 30
-    #ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, ball_size, ball_size)
 
     def __init__(self, x, y, radius):
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
@@ -248,9 +240,7 @@ while run:
         # draw ball
         game_over = ball.move()
         ball.draw()
-        #if game_over != 0:
-            #live_ball = False
-
+        
         # print player instructions
     if not live_ball:
             player.move()
