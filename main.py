@@ -125,10 +125,10 @@ class BALL:
                 if block.colliderect(self.rect):
                     # Collision with a block
                     # Do whatever is necessary upon colliding with a block
-                    wall.blocks[row][col][1] -= 1  # Reduce the strength of the block, or use other logic
-                    if wall.blocks[row][col][1] == 0:
-                        wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
-
+                    wall.blocks[row][col][1] = 0 # Reduce the strength of the block, or use other logic
+                    wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
+                    bounce_sound_effect.play()
+                    
                     # Update ball velocities (example: invert)
                     self.speed_x *= -1
                     self.speed_y *= -1
