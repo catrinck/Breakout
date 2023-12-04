@@ -102,7 +102,7 @@ class BALL:
 
         # check collision with paddle
         if self.rect.colliderect(player):
-            if self.speed_y > 0:  # Apenas se a bola estiver se movendo para baixo
+            if self.speed_y > 0:  # only if the balls falling
                 self.speed_y *= -1
             if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
                 self.speed_y *= -1
@@ -128,7 +128,7 @@ class BALL:
                     wall.blocks[row][col][1] = 0 # Reduce the strength of the block, or use other logic
                     wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
                     bounce_sound_effect.play()
-                    
+
                     # Update ball velocities (example: invert)
                     self.speed_x *= -1
                     self.speed_y *= -1
