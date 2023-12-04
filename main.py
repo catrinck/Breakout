@@ -12,16 +12,12 @@ pygame.init()
 screen_width = 600
 screen_height = 700
 
-#define font
-font = pygame.font.SysFont( None, 36)
-
 #define colors
 BG = (0, 0, 0)
 BLOCK_RED = (255, 0, 0)
 BLOCK_GREEN = (0, 255, 0)
 BLOCK_ORANGE = (255 * 65536 + 165 * 256 + 0)
 BLOCK_YELLOW = (255, 255, 0)
-TEXT_COLOR = (255, 255, 255)
 PADDLE_COLOR = (142, 135, 123)
 block_col = None
 
@@ -214,12 +210,6 @@ class BLOCK:
                 pygame.draw.rect(screen, block_col, block[0])
                 pygame.draw.rect(screen, BG, (block[0]), 2)
 
-
-
-# function for outputting text onto the screen
-def draw_text(text, font, text_color, x, y):
-    img = font.render(text, True, text_color)
-    screen.blit(img, (x, y))
 
 wall = BLOCK()
 wall.create_wall()
