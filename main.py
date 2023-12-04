@@ -126,7 +126,6 @@ class BALL:
                     bounce_sound_effect.play()
 
                     # Update ball velocities (example: invert)
-                    self.speed_x *= -1
                     self.speed_y *= -1
                     bounce_sound_effect.play()
 
