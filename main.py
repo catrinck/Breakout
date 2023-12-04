@@ -181,7 +181,7 @@ class BLOCK:
             for col in range(cols):
                 # generate x and y positions for each block and create a rectangle from that
                 block_x = col * self.width
-                block_y = row * self.height
+                block_y = row * self.height + 70
                 rect = pygame.Rect(block_x, block_y, self.width, self.height)
                 # assign block strength based on row
                 if row < 2:
