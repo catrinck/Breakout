@@ -1,6 +1,7 @@
 import pygame
 from pygame.cursors import *
 from pygame.locals import Rect
+from pygame.locals import *
 import sys
 import math
 import random
@@ -67,7 +68,9 @@ class PADDLE:
         self.rect.x = self.x
 
     def reset(self):
-        self.x = screen_width // 2 - self.width // 2
+        self.rect.width = pallet_width
+        self.rect.x = (screen_width - pallet_width) // 2
+        self.rect.y = screen_height - self.rect.height - 10
 
     def draw(self):
         pygame.draw.rect(screen, PADDLE_COLOR, self.rect)
@@ -105,7 +108,7 @@ class BALL:
                 self.speed_y *= -1
                 self.speed_x *= player.direction
                 relative_collision_point = (self.rect.centerx - player.rect.x) / player.rect.width
-                reflection_angle = (relative_collision_point - 0.5) * 2 * (math.pi / 4)
+                reflection_angle = (relative_collision_point - 0.5) * 3 * (math.pi / 4)
 
                 # Add randomness to the reflection angle:
                 random_factor = random.uniform(-math.pi / 8, math.pi / 8)
@@ -241,35 +244,50 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        elif event.type == KEYDOWN:
+            if event.key == K_SPACE:
+                if game_over == -1:
+                    player.reset()
+        elif event.type == KEYUP:
+            if game_over == - 1:
+                if event.key == K_r:
+                    player.reset()
+                    game_over = 0
+                    ball.reset()
 
-    if event.type == pygame.MOUSEBUTTONDOWN :
-        live_ball = True
-        ball.reset()
-        player.reset()
-        wall.create_wall()
+
+        if event.type == pygame.MOUSEBUTTONDOWN :
+          live_ball = True
+          ball.reset()
+          player.reset()
+          wall.create_wall()
 
     if live_ball:
         # draw paddle
         player.move()
-        player.draw()
+        #player.draw()
         # draw ball
         game_over = ball.move()
         ball.draw()
-        
-        # print player instructions
-    if not live_ball:
-            player.move()
-            ball.reset()
-            player.reset()
-            if game_over == 0:
-                draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
-            elif game_over == 1:
-                draw_text('YOU WON!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
-                draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
-            elif game_over == -1:
-                draw_text('YOU LOST!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
-                draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
 
+        if ball.rect.bottom > screen_height:
+            live_ball = False
+            game_over = -1
+
+    if not live_ball:
+        if game_over == 0:
+            draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+        elif game_over == 1:
+            draw_text('YOU WON!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
+            draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
+        elif game_over == -1:
+            player.rect.width = screen_width
+            player.rect.x = 0
+            player.rect.y = screen_height - player.height - 10
+            player.draw()
+
+            #draw_text('', font, TEXT_COLOR, 240, screen_height // 2 + 50)
+            #draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
     pygame.display.update()
 pygame.display.flip()
 pygame.quit()
