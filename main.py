@@ -204,13 +204,13 @@ class BLOCK:
             for block in row:
                 # assign a colour based on block strength
                 if block[1] == 4:
-                    block_col = BLOCK_YELLOW
-                elif block[1] == 3:
-                    block_col = BLOCK_GREEN
-                elif block[1] == 2:
-                    block_col = BLOCK_ORANGE
-                elif block[1] == 1:
                     block_col = BLOCK_RED
+                elif block[1] == 3:
+                    block_col = BLOCK_ORANGE
+                elif block[1] == 2:
+                    block_col = BLOCK_GREEN
+                elif block[1] == 1:
+                    block_col = BLOCK_YELLOW
                 pygame.draw.rect(screen, block_col, block[0])
                 pygame.draw.rect(screen, BG, (block[0]), 2)
 
