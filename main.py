@@ -13,7 +13,7 @@ screen_width = 600
 screen_height = 700
 
 #define font
-font = pygame.font.SysFont('Constantia', 36)
+font = pygame.font.SysFont( None, 36)
 
 #define colors
 BG = (0, 0, 0)
@@ -21,7 +21,7 @@ BLOCK_RED = (255, 0, 0)
 BLOCK_GREEN = (0, 255, 0)
 BLOCK_ORANGE = (255 * 65536 + 165 * 256 + 0)
 BLOCK_YELLOW = (255, 255, 0)
-TEXT_COLOR = (78, 81, 139)
+TEXT_COLOR = (255, 255, 255)
 PADDLE_COLOR = (142, 135, 123)
 block_col = None
 
@@ -275,19 +275,11 @@ while run:
             game_over = -1
 
     if not live_ball:
-        if game_over == 0:
-            draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
-        elif game_over == 1:
-            draw_text('YOU WON!', font, TEXT_COLOR, 240, screen_height // 2 + 50)
-            draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
-        elif game_over == -1:
+        if game_over == -1:
             player.rect.width = screen_width
             player.rect.x = 0
             player.rect.y = screen_height - player.height - 10
             player.draw()
-
-            #draw_text('', font, TEXT_COLOR, 240, screen_height // 2 + 50)
-            #draw_text('CLICK TO START', font, TEXT_COLOR, 100, screen_height // 2 + 100)
     pygame.display.update()
 pygame.display.flip()
 pygame.quit()
