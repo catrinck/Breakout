@@ -7,12 +7,23 @@ import math
 import random
 
 pygame.init()
+COLOR_BLACK = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
 
-#screen
+# screen
 screen_width = 600
 screen_height = 700
 
-#define colors
+# score text
+score_font = pygame.font.Font('assets/PressStart2P-vaV7.ttf', 44)
+score_text = score_font.render('00   00', True, COLOR_WHITE, COLOR_BLACK)
+score_text_rect = score_text.get_rect()
+score_text_rect.center = (680, 50)
+
+
+check = 0
+
+# define colors
 BG = (0, 0, 0)
 BLOCK_RED = (255, 0, 0)
 BLOCK_GREEN = (0, 255, 0)
@@ -25,7 +36,7 @@ block_col = None
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Breakout')
 
-#variables
+# variables
 clock = pygame.time.Clock()
 FPS = 60
 cols = 12
@@ -37,10 +48,11 @@ paddle_outline = (100, 100, 100)
 # sound effects
 bounce_sound_effect = pygame.mixer.Sound('assets/bounce.wav')
 
+
 class PADDLE:
     direction = None
 
-    def __init__(self, x, y, width, height, VELOCIDADE = 10):
+    def __init__(self, x, y, width, height, VELOCIDADE=10):
         self.VELOCIDADE = 10
         self.width = width
         self.height = height
@@ -52,7 +64,7 @@ class PADDLE:
         self.direction = 0
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
-    def move (self):
+    def move(self):
         self.direction = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > 0:
@@ -74,9 +86,12 @@ class PADDLE:
 
 
 radius = 10
+
+
 class BALL:
-    max_speed = 7 # to decide
+    max_speed = 7  # to decide
     ball_color = (255, 255, 255)
+    ball_score = 0
 
     def __init__(self, x, y, radius):
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
@@ -102,7 +117,7 @@ class BALL:
                 self.speed_y *= -1
             if abs(self.rect.bottom - player.rect.top) < collision_thresh and self.speed_y > 0:
                 self.speed_y *= -1
-                self.speed_x *= player.direction
+                self.speed_x *= 1
                 relative_collision_point = (self.rect.centerx - player.rect.x) / player.rect.width
                 reflection_angle = (relative_collision_point - 0.5) * 3 * (math.pi / 4)
 
@@ -121,9 +136,11 @@ class BALL:
                 if block.colliderect(self.rect):
                     # Collision with a block
                     # Do whatever is necessary upon colliding with a block
-                    wall.blocks[row][col][1] = 0 # Reduce the strength of the block, or use other logic
+                    wall.blocks[row][col][1] = 0  # Reduce the strength of the block, or use other logic
                     wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
+                    self.ball_score +=1
                     bounce_sound_effect.play()
+
 
                     # Update ball velocities (example: invert)
                     self.speed_y *= -1
@@ -135,14 +152,12 @@ class BALL:
             bounce_sound_effect.play()
 
         # Check collision with top
-        if self.rect.top < 0 :
+        if self.rect.top < 0:
             self.speed_y *= -1
             bounce_sound_effect.play()
 
-
         # Return the game over state
         return self.game_over
-
 
     def reset(self):
         self.x = self.original_x
@@ -156,6 +171,7 @@ class BALL:
         pygame.draw.circle(screen, paddle_outline, (self.rect.x + self.radius, self.rect.y + self.radius),
                            self.radius, 3)
 
+
 class BLOCK:
     def __init__(self):
         self.game_over = 0
@@ -164,7 +180,7 @@ class BLOCK:
         self.width = screen_width // cols
         self.height = 20
 
-#create the wall of blocks
+    # create the wall of blocks
     def create_wall(self):
         self.blocks = []
         # empty list fot individual blocks
@@ -212,23 +228,25 @@ class BLOCK:
 
 wall = BLOCK()
 wall.create_wall()
-player = PADDLE(screen_width - 20, screen_height / 2, pallet_width, pallet_size, VELOCIDADE= 8)
+player = PADDLE(screen_width - 20, screen_height / 2, pallet_width, pallet_size, VELOCIDADE=8)
 ball = BALL(screen_width / 2, screen_height / 2, radius)
 game_over = 0
 live_ball = False
 run = True
 
-#game loop
+# game loop
 while run:
-
     clock.tick(FPS)
     screen.fill(BG)
 
-    #DRAW THINGS
+    # DRAW THINGS
 
     wall.draw_wall()
     player.draw()
     ball.draw()
+    screen.blit(score_text, score_text_rect)
+    # update score hud
+    score_text = score_font.render(str(ball.ball_score) + '   ', True, COLOR_WHITE, COLOR_BLACK)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -244,17 +262,17 @@ while run:
                     game_over = 0
                     ball.reset()
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            live_ball = True
+            ball.reset()
+            player.reset()
+            wall.create_wall()
 
-        if event.type == pygame.MOUSEBUTTONDOWN :
-          live_ball = True
-          ball.reset()
-          player.reset()
-          wall.create_wall()
 
     if live_ball:
         # draw paddle
         player.move()
-        #player.draw()
+        # player.draw()
         # draw ball
         game_over = ball.move()
         ball.draw()
