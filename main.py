@@ -18,7 +18,7 @@ screen_height = 700
 score_font = pygame.font.Font('assets/PressStart2P-vaV7.ttf', 44)
 score_text = score_font.render('00   00', True, COLOR_WHITE, COLOR_BLACK)
 score_text_rect = score_text.get_rect()
-score_text_rect.center = (680, 50)
+score_text_rect.center = (650, 50)
 
 
 check = 0
