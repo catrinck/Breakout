@@ -67,10 +67,10 @@ class PADDLE:
     def move(self):
         self.direction = 0
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] and self.rect.left > 0:
+        if keys[pygame.K_a] and self.rect.left > 0:
             self.x -= self.VELOCIDADE
             self.direction = -1
-        if keys[pygame.K_RIGHT] and self.rect.right < screen_width:
+        if keys[pygame.K_d] and self.rect.right < screen_width:
             self.x += self.VELOCIDADE
             self.direction = 1
         self.rect.x = self.x
@@ -144,7 +144,7 @@ class BALL:
 
 
                     # Update ball velocities (example: invert)
-                    self.speed_y *= -1
+                    self.speed_y *= -1.02
                     bounce_sound_effect.play()
 
         # Check collision with walls and update velocities
