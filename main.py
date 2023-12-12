@@ -172,6 +172,8 @@ class BALL:
                            self.radius, 3)
 
 
+
+
 class BLOCK:
     def __init__(self):
         self.game_over = 0
@@ -280,6 +282,7 @@ while run:
         if ball.rect.bottom > screen_height:
             live_ball = False
             game_over = -1
+            ball.ball_score= 0
 
     if not live_ball:
         if game_over == -1:
