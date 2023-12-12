@@ -138,6 +138,7 @@ class BALL:
                     # Do whatever is necessary upon colliding with a block
                     wall.blocks[row][col][1] = 0  # Reduce the strength of the block, or use other logic
                     wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
+                    #score counter
                     self.ball_score +=1
                     bounce_sound_effect.play()
 
@@ -278,7 +279,7 @@ while run:
         # draw ball
         game_over = ball.move()
         ball.draw()
-
+ #score reset
         if ball.rect.bottom > screen_height:
             live_ball = False
             game_over = -1
