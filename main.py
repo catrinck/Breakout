@@ -18,7 +18,7 @@ screen_height = 700
 score_font = pygame.font.Font('assets/PressStart2P-vaV7.ttf', 44)
 score_text = score_font.render('00   00', True, COLOR_WHITE, COLOR_BLACK)
 score_text_rect = score_text.get_rect()
-score_text_rect.center = (680, 50)
+score_text_rect.center = (650, 50)
 
 
 check = 0
@@ -138,6 +138,7 @@ class BALL:
                     # Do whatever is necessary upon colliding with a block
                     wall.blocks[row][col][1] = 0  # Reduce the strength of the block, or use other logic
                     wall.blocks[row][col][0] = pygame.Rect(0, 0, 0, 0)  # "Remove" the block
+                    #score counter
                     self.ball_score +=1
                     bounce_sound_effect.play()
 
@@ -170,6 +171,8 @@ class BALL:
                            self.radius)
         pygame.draw.circle(screen, paddle_outline, (self.rect.x + self.radius, self.rect.y + self.radius),
                            self.radius, 3)
+
+
 
 
 class BLOCK:
@@ -276,10 +279,11 @@ while run:
         # draw ball
         game_over = ball.move()
         ball.draw()
-
+ #score reset
         if ball.rect.bottom > screen_height:
             live_ball = False
             game_over = -1
+            ball.ball_score= 0
 
     if not live_ball:
         if game_over == -1:
